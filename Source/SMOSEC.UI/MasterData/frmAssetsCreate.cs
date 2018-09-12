@@ -1,62 +1,79 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using SMOSEC.Application.Services;
+using Smobiler.Core.Controls;
 using SMOSEC.CommLib;
 using SMOSEC.Domain.Entity;
 using SMOSEC.DTOs.InputDTO;
-using Smobiler.Core;
-using Smobiler.Core.Controls;
+using SMOSEC.UI.Layout;
 
 namespace SMOSEC.UI.MasterData
 {
+    /// <summary>
+    /// 创建资产界面
+    /// </summary>
     partial class frmAssetsCreate : Smobiler.Core.Controls.MobileForm
     {
-        public string UserId;
-        public string TypeId;
-        public string LocationId;
-        public string ManagerId;
+        #region 变量
+        public string UserId; //用户名
+        public string LocationId; //区域编号
+        public string ManagerId; //管理人编号
 
         private AutofacConfig _autofacConfig = new AutofacConfig();//调用配置类
+        public string DepId;
 
+        #endregion
+
+        /// <summary>
+        /// 添加资产
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnSave_Press(object sender, EventArgs e)
         { 
             try
             {
+                if (string.IsNullOrEmpty(LocationId))
+                {
+                    throw new Exception("请选择区域！");
+                }
+                decimal price;
+                if(btnType.Tag == null)
+                {
+                    throw new Exception("请选择类别!");
+                }
+                if (!decimal.TryParse(txtPrice.Text, out price))
+                {
+                    throw new Exception("请输入正确的单价！");
+                }
                 AssetsInputDto assetsInputDto = new AssetsInputDto
                 {
                     AssId = txtAssID.Text,
                     BuyDate = DatePickerBuy.Value,
                     CreateUser = UserId,
                     CurrentUser = "",
-                    DepartmentId = txtDepart.Text,
+                    DepartmentId = DepId,
                     ExpiryDate = DatePickerExpiry.Value,
                     Image = ImgPicture.ResourceID,
-                    //                assetsInputDto.LocationId = LocationId;
                     LocationId = LocationId,
                     Manager =ManagerId,
                     ModifyUser = UserId,
                     Name = txtName.Text,
                     Note = txtNote.Text,
-                    Place = txtPlace.Text,
-                    Price = decimal.Parse(txtPrice.Text),
+                    Place = txtPlace.Text, 
+                    Price = price,
                     Specification = txtSpe.Text,
-                    //                assetsInputDto.TypeId = TypeId;
-                    TypeId = TypeId,
+                    TypeId = btnType.Tag.ToString(),
                     Unit = txtUnit.Text,
                     Vendor = txtVendor.Text,
                     SN = txtSN.Text
                 };
+                if (String.IsNullOrEmpty(txtPrice.Text) == false)
+                    assetsInputDto.Price = decimal.Parse(txtPrice.Text);
                 ReturnInfo returnInfo = _autofacConfig.SettingService.AddAssets(assetsInputDto);
                 if (returnInfo.IsSuccess)
                 {
                     ShowResult = ShowResult.Yes;
                     Close();
-//                    FrmAssetsDetail assetsDetail=new FrmAssetsDetail(){AssId = returnInfo.ErrorInfo};
-//                    Show(assetsDetail);
-//                    Close();
                     Toast("添加成功.资产编号为"+returnInfo.ErrorInfo);
                 }
                 else
@@ -71,43 +88,33 @@ namespace SMOSEC.UI.MasterData
 
         }
 
+        /// <summary>
+        /// 选择类型
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnType_Press(object sender, EventArgs e)
         {
             try
             {
-                PopType.Groups.Clear();
-                PopListGroup typeGroup = new PopListGroup();
-                typeGroup.Title = "资产类型";
-                var typelist = _autofacConfig.assTypeService.GetAll();
-                foreach (var type in typelist)
+                string TypeId = "";
+                if (btnType.Tag != null)
                 {
-                    PopListItem item = new PopListItem
-                    {
-                        Value = type.TYPEID,
-                        Text = type.NAME
-                    };
-                    typeGroup.Items.Add(item);
+                    TypeId = btnType.Tag.ToString();
                 }
-                PopType.Groups.Add(typeGroup);
-                if (!string.IsNullOrEmpty(btnType.Text))
-                {
-                    foreach (PopListItem row in PopType.Groups[0].Items)
-                    {
-                        if (row.Text == btnType.Text)
-                        {
-                            PopType.SetSelections(row);
-                        }
-                    }
-                }
-                PopType.ShowDialog();
+                frmAssTypeChooseLayout layout = new frmAssTypeChooseLayout { IsCreate = true, typeId = TypeId };
+                ShowDialog(layout);
             }
             catch (Exception ex)
             {
                 Toast(ex.Message);
             }
-            
         }
-
+        /// <summary>
+        /// 选择区域
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnLocation_Press(object sender, EventArgs e)
         {
             try
@@ -143,15 +150,20 @@ namespace SMOSEC.UI.MasterData
             }
            
         }
-
-
-
+        /// <summary>
+        /// 上传图片
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PanelImg_Press(object sender, EventArgs e)
         {
             CamPicture.GetPhoto();
         }
-
-
+        /// <summary>
+        /// 选择区域后
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PopLocation_Selected(object sender, EventArgs e)
         {
             try
@@ -169,21 +181,11 @@ namespace SMOSEC.UI.MasterData
                 Toast(ex.Message);
             }
         }
-
-        private void PopType_Selected(object sender, EventArgs e)
-        {
-            try
-            {
-                if (PopType.Selection == null) return;
-                btnType.Text = PopType.Selection.Text;
-                TypeId = PopType.Selection.Value;                
-            }
-            catch (Exception ex)
-            {
-                Toast(ex.Message);
-            }
-        }
-
+        /// <summary>
+        /// 图片获取到后
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CamPicture_ImageCaptured(object sender, BinaryResultArgs e)
         {
             try
@@ -201,18 +203,36 @@ namespace SMOSEC.UI.MasterData
             }
         }
 
+        /// <summary>
+        /// 按回退时，关闭当前窗口
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void frmAssetsCreate_KeyDown(object sender, KeyDownEventArgs e)
         {
             if (e.KeyCode == KeyCode.Back)
                 Close();
         }
 
+        /// <summary>
+        /// 界面初始化
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void frmAssetsCreate_Load(object sender, EventArgs e)
         {
             try
             {
                 DatePickerExpiry.Value = DateTime.Now.AddYears(1);
                 UserId = Session["UserID"].ToString();
+                if (Client.Session["Role"].ToString() == "SMOSECAdmin")
+                {
+                    var user = _autofacConfig.coreUserService.GetUserByID(UserId);
+                    LocationId = user.USER_LOCATIONID;
+                    var location = _autofacConfig.assLocationService.GetByID(LocationId);
+                    btnLocation.Text = location.NAME;
+                    btnLocation.Enabled = false;
+                }
             }
             catch (Exception ex)
             {
@@ -220,36 +240,11 @@ namespace SMOSEC.UI.MasterData
             }
         }
 
-//        private void btnManager_Press(object sender, EventArgs e)
-//        {
-//            try
-//            {
-//                PopManager.Groups.Clear();
-//                PopListGroup manGroup = new PopListGroup();
-//                PopManager.Title = "管理人选择";
-//                List<coreUser> users = _autofacConfig.coreUserService.GetDealInAdmin();
-//                foreach (coreUser Row in users)
-//                {
-//                    manGroup.AddListItem(Row.USER_NAME, Row.USER_ID);
-//                }
-//                PopManager.Groups.Add(manGroup);
-//                if (btnManager.Tag != null)   //如果已有选中项，则显示选中效果
-//                {
-//                    foreach (PopListItem Item in manGroup.Items)
-//                    {
-//                        if (Item.Value == btnManager.Tag.ToString())
-//                            PopManager.SetSelections(Item);
-//                    }
-//                }
-//                PopManager.ShowDialog();
-//
-//            }
-//            catch (Exception ex)
-//            {
-//                Toast(ex.Message);
-//            }
-//        }
-
+        /// <summary>
+        /// 手机扫描二维码
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ImgBtnForAssId_Press(object sender, EventArgs e)
         {
             try
@@ -262,13 +257,17 @@ namespace SMOSEC.UI.MasterData
             }
         }
 
+        /// <summary>
+        /// 手机扫描到二维码信息时
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void barcodeScanner1_BarcodeScanned(object sender, BarcodeResultArgs e)
         {
             try
             {
                 string barCode = e.Value;
                 txtSN.Text = barCode;
-
             }
             catch (Exception ex)
             {
@@ -276,22 +275,11 @@ namespace SMOSEC.UI.MasterData
             }
         }
 
-        private void PopManager_Selected(object sender, EventArgs e)
-        {
-//            try
-//            {
-//                if (PopManager.Selection != null)
-//                {
-//                    btnManager.Text = PopManager.Selection.Text;
-//                    ManagerId = PopManager.Selection.Value;
-//                }
-//            }
-//            catch (Exception ex)
-//            {
-//                Toast(ex.Message);
-//            }
-        }
-
+        /// <summary>
+        /// 手持物理按键扫描二维码，扫描到二维码时
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void r2000Scanner1_BarcodeDataCaptured(object sender, Smobiler.Device.R2000BarcodeScanEventArgs e)
         {
             try
@@ -305,12 +293,78 @@ namespace SMOSEC.UI.MasterData
             }
         }
 
+        /// <summary>
+        /// 手持物理按键扫描RFID，扫描到RFID时
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void r2000Scanner1_RFIDDataCaptured(object sender, Smobiler.Device.R2000RFIDScanEventArgs e)
         {
             try
             {
                 string RFID = e.Epc;
                 txtSN.Text = RFID;
+            }
+            catch (Exception ex)
+            {
+                Toast(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 选择部门时
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnDep_Press(object sender, EventArgs e)
+        {
+            try
+            {
+                popDep.Groups.Clear();
+                PopListGroup depGroup = new PopListGroup { Title = "部门" };
+                var deplist = _autofacConfig.DepartmentService.GetAllDepartment();
+                foreach (var dep in deplist)
+                {
+                    PopListItem item = new PopListItem
+                    {
+                        Value = dep.DEPARTMENTID,
+                        Text = dep.NAME
+                    };
+                    depGroup.Items.Add(item);
+                }
+                popDep.Groups.Add(depGroup);
+                if (!string.IsNullOrEmpty(DepId))
+                {
+                    foreach (PopListItem row in popDep.Groups[0].Items)
+                    {
+                        if (row.Value == DepId)
+                        {
+                            popDep.SetSelections(row);
+                        }
+                    }
+                }
+                popDep.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                Toast(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 部门选中时
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void popDep_Selected(object sender, EventArgs e)
+        {
+            try
+            {
+                if (popDep.Selection != null)
+                {
+                    btnDep.Text = popDep.Selection.Text + "   > ";
+                    DepId = popDep.Selection.Value;
+                }
             }
             catch (Exception ex)
             {

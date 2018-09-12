@@ -2,8 +2,6 @@
 using System.Data;
 using System.Linq;
 using SMOSEC.CommLib;
-using SMOSEC.Domain.Entity;
-using SMOSEC.DTOs.Enum;
 using SMOSEC.DTOs.InputDTO;
 using SMOSEC.DTOs.OutputDTO;
 
@@ -23,10 +21,11 @@ namespace SMOSEC.Application.IServices
         AssetsOutputDto  GetAssetsByID(string ID);
 
         /// <summary>
-        /// 得到所有的固定资产
+        /// 得到某区域所有的固定资产
         /// </summary>
+        /// <param name="LocationId">区域编号</param>
         /// <returns></returns>
-        DataTable GetAllAss();
+        DataTable GetAllAss(string LocationId);
 
         /// <summary>
         /// 查询空闲的资产数据
@@ -105,21 +104,42 @@ namespace SMOSEC.Application.IServices
         /// 查询处理记录
         /// </summary>
         /// <param name="ASSID">资产编号</param>
+        /// <param name="CID">耗材编号</param>
         /// <returns></returns>
-        DataTable GetRecords(string ASSID);
+        DataTable GetRecords(string ASSID,string CID);
 
         /// <summary>
-        /// 根据区域和资产编号返回库存信息
+        /// 根据SN或者名称或者部门或者状态查询资产
         /// </summary>
-        /// <param name="LocationID">区域编号</param>
-        /// <param name="AssID">资产编号</param>
+        /// <param name="SNOrName">SN或者名称</param>
+        /// <param name="LocationId">区域</param>
+        /// <param name="DepId">部门编号</param>
+        /// <param name="Status">资产状态</param>
+        /// <param name="Type">资产类型</param>
         /// <returns></returns>
-        IQueryable<AssQuant> GetQuants(string LocationID, string AssID);
+        DataTable QueryAssets(string SNOrName, string LocationId, string DepId, string Status, string Type);
 
-        DataTable QueryAssets(string SNOrName);
+        /// <summary>
+        /// 根据SN得到资产信息
+        /// </summary>
+        /// <param name="SN">SN编号</param>
+        /// <param name="LocationId">区域编号</param>
+        /// <returns></returns>
+        DataTable GetAssetsBySN(string SN, string LocationId);
 
-        DataTable GetAssetsBySN(string SN);
-        #endregion
+        /// <summary>
+        /// 得到所有的SN
+        /// </summary>
+        /// <returns></returns>
+        List<string> GetAllSns();
+        
+        /// <summary>
+        /// 根据SN列表得到相关的资产数据
+        /// </summary>
+        /// <param name="Sns">SN列表</param>
+        /// <returns></returns>
+        DataTable GetBySnList(List<string> Sns);
+            #endregion
 
         #region 操作
         /// <summary>
@@ -134,7 +154,14 @@ namespace SMOSEC.Application.IServices
         /// </summary>
         /// <param name="entity">资产信息</param>
         /// <returns></returns>
-        ReturnInfo UpdateAssets(AssetsInputDto entity);       
+        ReturnInfo UpdateAssets(AssetsInputDto entity);
+        /// <summary>
+        /// 删除资产(修改资产状态为已删除)
+        /// </summary>
+        /// <param name="assid"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        ReturnInfo DeleteAssets(string  assid, string userId);
 
         #endregion
 

@@ -58,7 +58,7 @@ namespace SMOSEC.UI.ConsumablesManager
                 tableAssets.Columns.Add("INTRANSFERQTY");      //调拨中数量
                 foreach (AssTransferOrderRow Row in TOData.Rows)
                 {
-                    Domain.Entity.Consumables cons = autofacConfig.orderCommonService.GetConsByID(Row.CID);
+                    Consumables cons = autofacConfig.orderCommonService.GetConsByID(Row.CID);
                     AssLocation Location = autofacConfig.assLocationService.GetByID(Row.LOCATIONID);
                     if (Row.STATUS == 0)
                     {
@@ -144,7 +144,14 @@ namespace SMOSEC.UI.ConsumablesManager
                 {
                     ShowResult = ShowResult.Yes;
                     Form.Close();
-                    Toast("确认维修成功!");
+                    if (Type == PROCESSMODE.调拨确认)
+                    {
+                        Toast("确认调拨成功!");
+                    }
+                    else
+                    {
+                        Toast("取消调拨成功!");
+                    }
                 }
                 else
                 {

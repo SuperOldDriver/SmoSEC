@@ -101,6 +101,7 @@ namespace SMOSEC.Application.Services
                 {
                     try
                     {
+                        ////此处请自行注册
                         ITopClient client = new DefaultTopClient("http://gw.api.taobao.com/router/rest", "***", "***");
                         AlibabaAliqinFcSmsNumSendRequest req = new AlibabaAliqinFcSmsNumSendRequest();
                         //回传参数

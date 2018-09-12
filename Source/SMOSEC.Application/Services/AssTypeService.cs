@@ -8,6 +8,7 @@ using System;
 using AutoMapper;
 using System.Data.Entity;
 using System.Linq;
+using SMOSEC.DTOs.Enum;
 
 namespace SMOSEC.Application.Services
 {
@@ -56,6 +57,14 @@ namespace SMOSEC.Application.Services
             return _AssetsTypeRepository.GetAll().AsNoTracking().ToList();
         }
         /// <summary>
+        /// 返回所有资产大类信息
+        /// </summary>
+        /// <returns></returns>
+        public List<AssetsType> GetAllFirstLevel()
+        {
+            return _AssetsTypeRepository.GetAllFirstLevel().AsNoTracking().ToList();
+        }
+        /// <summary>
         /// 根据资产类别编号返回资产类别信息
         /// </summary>
         /// <param name="ID"></param>
@@ -93,7 +102,7 @@ namespace SMOSEC.Application.Services
             List<AssetsType> ats = _AssetsTypeRepository.IsParent(ID).AsNoTracking().ToList();
             if (ats.Count > 0)    //有子类，说明为父类
             {
-                return true;    
+                return true;
             }
             else                  //无子类，说明不是父类
             {
@@ -105,18 +114,19 @@ namespace SMOSEC.Application.Services
         public ReturnInfo AddAssetsType(AssetsType entity)
         {
             ReturnInfo RInfo = new ReturnInfo();
+            if (String.IsNullOrEmpty(entity.TYPEID))
+                throw new Exception("分类编号不能为空");
+            if (String.IsNullOrEmpty(entity.NAME))
+                throw new Exception("分类名称不能为空");
+            if (String.IsNullOrEmpty(entity.EXPIRYDATE.ToString()))
+                throw new Exception("年限不能为空");
+            AssetsType at = _AssetsTypeRepository.GetByID(entity.TYPEID).AsNoTracking().FirstOrDefault();
+            if (at != null)
+                throw new Exception("该分类编号已存在!");
             try
             {
-                if (String.IsNullOrEmpty(entity.TYPEID))
-                    throw new Exception("分类编号不能为空");
-                if (String.IsNullOrEmpty(entity.NAME))
-                    throw new Exception("分类名称不能为空");
-                if (String.IsNullOrEmpty(entity.EXPIRYDATE.ToString()))
-                    throw new Exception("年限不能为空");
-                AssetsType at = _AssetsTypeRepository.GetByID(entity.TYPEID).AsNoTracking().FirstOrDefault();
-                if (at != null)
-                    throw new Exception("该分类编号已存在!");
-
+                entity.EXPIRYDATEUNIT = 1;
+                entity.ISENABLE = 1;
                 _unitOfWork.RegisterNew(entity);
                 bool result = _unitOfWork.Commit();
                 RInfo.IsSuccess = result;
@@ -183,6 +193,36 @@ namespace SMOSEC.Application.Services
                 bool result = _unitOfWork.Commit();
                 RInfo.IsSuccess = result;
                 RInfo.ErrorInfo = "删除成功!";
+                return RInfo;
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.Rollback();
+                RInfo.IsSuccess = false;
+                RInfo.ErrorInfo = ex.Message;
+                return RInfo;
+            }
+        }
+        /// <summary>
+        /// 更改分类启用状态
+        /// </summary>
+        /// <param name="TypeId"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public ReturnInfo ChangeEnable(String TypeId, IsEnable status)
+        {
+            ReturnInfo RInfo = new ReturnInfo();
+            if (String.IsNullOrEmpty(TypeId))
+                throw new Exception("分类编号不能为空");
+            AssetsType assetsType = _AssetsTypeRepository.GetByID(TypeId).FirstOrDefault();
+            if (assetsType == null)
+                throw new Exception("分类编号不存在，请检查!");
+            try
+            {
+                assetsType.ISENABLE = (int)status;
+                _unitOfWork.RegisterDirty(assetsType);
+                _unitOfWork.Commit();
+                RInfo.IsSuccess = true;
                 return RInfo;
             }
             catch (Exception ex)

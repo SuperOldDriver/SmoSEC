@@ -88,7 +88,14 @@ namespace SMOSEC.UI.AssetsManager
                 {
                     ShowResult = ShowResult.Yes;
                     Form.Close();
-                    Toast("确认维修成功!");
+                    if(Type== PROCESSMODE.调拨确认)
+                    {
+                        Toast("确认调拨成功!");
+                    }
+                    else
+                    {
+                        Toast("取消调拨成功!");
+                    }
                 }
                 else
                 {
@@ -107,7 +114,6 @@ namespace SMOSEC.UI.AssetsManager
         /// <param name="e"></param>
         private void frmTransferDealSN_Load(object sender, EventArgs e)
         {
-            Client.Session["UserID"] = "Steven";
             Bind();
         }
         /// <summary>

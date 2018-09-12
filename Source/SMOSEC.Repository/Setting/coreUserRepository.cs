@@ -40,12 +40,29 @@ namespace SMOSEC.Repository.Setting
             return _entities.Where(x => x.USER_ROLE == "ADMIN");
         }
         /// <summary>
+        /// 得到某个部门的所有用户
+        /// </summary>
+        /// <param name="DepartmentID"></param>
+        /// <returns></returns>
+        public IQueryable<coreUser> GetUserByDepID(string DepartmentID)
+        {
+            return _entities.Where(x => x.USER_DEPARTMENTID == DepartmentID);
+        }
+        /// <summary>
         /// 获取用户数据
         /// </summary>
         /// <returns></returns>
         public IQueryable<coreUser> GetUser()
         {
             return _entities.Where(x => x.USER_ROLE == "SMOSECUser");
+        }
+        /// <summary>
+        /// 通过用户名称获取用户数据
+        /// </summary>
+        /// <returns></returns>
+        public IQueryable<coreUser> GetUser(string Name)
+        {
+            return _entities.Where(x => x.USER_NAME.Contains(Name));
         }
         /// <summary>
         /// 通过用户编号获取用户信息
@@ -81,6 +98,15 @@ namespace SMOSEC.Repository.Setting
         public IQueryable<coreUser> GetByPhone(string Phone)
         {
             return _entities.Where(x => x.USER_PHONE == Phone);
+        }
+        /// <summary>
+        /// 判断该用户ID是否存在
+        /// </summary>
+        /// <param name="UserID">用户ID</param>
+        /// <returns>true表示存在，false表示不存在</returns>
+        public bool IsExists(string UserID)
+        {
+            return _entities.Any(x => x.USER_ID == UserID);
         }
     }
 }

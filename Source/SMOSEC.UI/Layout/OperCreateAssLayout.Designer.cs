@@ -28,7 +28,7 @@ namespace SMOSEC.UI.Layout
         [System.Diagnostics.DebuggerStepThrough()]
         private void InitializeComponent()
         {
-            this.Panel1 = new Smobiler.Core.Controls.Panel();
+            this.plRow = new Smobiler.Core.Controls.Panel();
             this.Label1 = new Smobiler.Core.Controls.Label();
             this.Image = new Smobiler.Core.Controls.Image();
             this.Label2 = new Smobiler.Core.Controls.Label();
@@ -38,11 +38,11 @@ namespace SMOSEC.UI.Layout
             this.LblName = new Smobiler.Core.Controls.Label();
             this.LblType = new Smobiler.Core.Controls.Label();
             // 
-            // Panel1
+            // plRow
             // 
-            this.Panel1.BackColor = System.Drawing.Color.White;
-            this.Panel1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(230)))), ((int)(((byte)(230)))));
-            this.Panel1.Controls.AddRange(new Smobiler.Core.Controls.MobileControl[] {
+            this.plRow.BackColor = System.Drawing.Color.White;
+            this.plRow.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(230)))), ((int)(((byte)(230)))), ((int)(((byte)(230)))));
+            this.plRow.Controls.AddRange(new Smobiler.Core.Controls.MobileControl[] {
             this.Label1,
             this.Image,
             this.Label2,
@@ -51,19 +51,19 @@ namespace SMOSEC.UI.Layout
             this.LblSN,
             this.LblName,
             this.LblType});
-            this.Panel1.Name = "Panel1";
-            this.Panel1.Size = new System.Drawing.Size(300, 76);
-            this.Panel1.Touchable = true;
-            this.Panel1.LongPress += new System.EventHandler(this.Panel1_LongPress);
+            this.plRow.Name = "plRow";
+            this.plRow.Size = new System.Drawing.Size(300, 76);
+            this.plRow.Touchable = true;
+            this.plRow.LongPress += new System.EventHandler(this.Panel1_LongPress);
             // 
             // Label1
             // 
             this.Label1.BackColor = System.Drawing.Color.White;
             this.Label1.FontSize = 12F;
-            this.Label1.Location = new System.Drawing.Point(70, 28);
+            this.Label1.Location = new System.Drawing.Point(68, 28);
             this.Label1.Name = "Label1";
             this.Label1.Padding = new Smobiler.Core.Controls.Padding(4F, 0F, 0F, 0F);
-            this.Label1.Size = new System.Drawing.Size(73, 20);
+            this.Label1.Size = new System.Drawing.Size(75, 20);
             this.Label1.Text = "资产条码";
             // 
             // Image
@@ -79,20 +79,20 @@ namespace SMOSEC.UI.Layout
             // 
             this.Label2.BackColor = System.Drawing.Color.White;
             this.Label2.FontSize = 12F;
-            this.Label2.Location = new System.Drawing.Point(70, 48);
+            this.Label2.Location = new System.Drawing.Point(68, 48);
             this.Label2.Name = "Label2";
             this.Label2.Padding = new Smobiler.Core.Controls.Padding(4F, 0F, 0F, 0F);
-            this.Label2.Size = new System.Drawing.Size(73, 20);
+            this.Label2.Size = new System.Drawing.Size(75, 20);
             this.Label2.Text = "资产名称";
             // 
             // Label3
             // 
             this.Label3.BackColor = System.Drawing.Color.White;
             this.Label3.FontSize = 12F;
-            this.Label3.Location = new System.Drawing.Point(70, 8);
+            this.Label3.Location = new System.Drawing.Point(68, 8);
             this.Label3.Name = "Label3";
             this.Label3.Padding = new Smobiler.Core.Controls.Padding(4F, 0F, 0F, 0F);
-            this.Label3.Size = new System.Drawing.Size(73, 20);
+            this.Label3.Size = new System.Drawing.Size(75, 20);
             this.Label3.Text = "SN号";
             // 
             // lblASSID
@@ -144,14 +144,14 @@ namespace SMOSEC.UI.Layout
             // OperCreateAssLayout
             // 
             this.Controls.AddRange(new Smobiler.Core.Controls.MobileControl[] {
-            this.Panel1});
+            this.plRow});
             this.Size = new System.Drawing.Size(300, 76);
             this.Name = "OperCreateAssLayout";
 
         }
         #endregion
 
-        internal Smobiler.Core.Controls.Panel Panel1;
+        internal Smobiler.Core.Controls.Panel plRow;
         internal Smobiler.Core.Controls.Label Label1;
         internal Smobiler.Core.Controls.Image Image;
         internal Smobiler.Core.Controls.Label Label2;
